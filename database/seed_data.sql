@@ -2,6 +2,7 @@ PRAGMA foreign_keys=ON;
 
 -- USERS
 insert into users(name, email,password_hash) values
+-- These are mock password hashes for seed data only; never use them as real credentials.
 ('Amna Muhammad', 'amna@example.com', 'hashed_pw_1'),
 ('Bilal Khan', 'bilal@example.com', 'hashed_pw_2'),
 ('Sara Ahmed', 'sara@example.com', 'hashed_pw_3');
@@ -13,7 +14,12 @@ INSERT INTO providers (name, category, neighborhood_zone, rating) VALUES
 ('Bright Minds Tutoring', 'tutor', 'DHA', 4.8),
 ('Zafar Carpentry', 'carpenter', 'Nazimabad', 3.9),
 ('Clifton Paint Co.', 'painter', 'Clifton', 4.0),
-('Quick Electric Johar', 'electrician', 'Johar', 3.7);
+('Quick Electric Johar', 'electrician', 'Johar', 3.7),
+('Gulshan Home Electric', 'electrician', 'Gulshan', 4.1),
+('Johar Pipe Masters', 'plumber', 'Johar', 4.3),
+('Clifton Learning Hub', 'tutor', 'Clifton', 4.6),
+('DHA Woodworks', 'carpenter', 'DHA', 4.4),
+('Nazimabad Color Experts', 'painter', 'Nazimabad', 4.2);
 
 -- BOOKINGS
 INSERT INTO bookings (user_id, provider_id, booking_time, status) VALUES

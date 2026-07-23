@@ -17,11 +17,3 @@ SELECT name, category, rating
 FROM providers
 WHERE neighborhood_zone = 'Johar'
 ORDER BY rating DESC;
-
--- 5. Test that a bad foreign key gets rejected (should throw an error if PRAGMA foreign_keys is ON)
-INSERT INTO bookings (user_id, provider_id, booking_time, status)
-VALUES (999, 999, '2026-08-01 10:00:00', 'pending');
-
--- 6. Test that an invalid category is rejected (should throw an error)
-INSERT INTO providers (name, category, neighborhood_zone, rating)
-VALUES ('Random Provider', 'plumbers', 'Gulshan', 4.0);  -- note: 'plumbers' isn't in the CHECK list

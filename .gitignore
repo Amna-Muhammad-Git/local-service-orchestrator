@@ -2,6 +2,7 @@
 *.sqlite
 *.sqlite3
 __pycache__/
+.venv/
 node_modules/
 .env
 .DS_Store

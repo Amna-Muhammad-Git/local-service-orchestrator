@@ -98,6 +98,11 @@ class ServiceIntent(BaseModel):
     requested_time: str | None = None
     language: Literal["english", "urdu", "roman_urdu", "mixed", "unknown"] = "unknown"
 
+    @field_validator("category", "neighborhood_zone", "requested_date", "requested_time", mode="before")
+    @classmethod
+    def empty_values_to_none(cls, value: object) -> object:
+        return None if value in {"", "unknown", "Unknown"} else value
+
 
 class ProviderMatch(BaseModel):
     provider_id: int

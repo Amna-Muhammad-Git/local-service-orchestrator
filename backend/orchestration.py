@@ -26,20 +26,20 @@ def _intent_schema() -> dict[str, object]:
         "type": "object",
         "properties": {
             "category": {
-                "type": ["string", "null"],
-                "enum": ["plumber", "electrician", "tutor", "carpenter", "painter", None],
+                "type": "string",
+                "enum": ["plumber", "electrician", "tutor", "carpenter", "painter", "unknown"],
             },
             "neighborhood_zone": {
-                "type": ["string", "null"],
-                "enum": ["Gulshan", "Johar", "Clifton", "DHA", "Nazimabad", None],
+                "type": "string",
+                "enum": ["Gulshan", "Johar", "Clifton", "DHA", "Nazimabad", "unknown"],
             },
             "requested_date": {
-                "type": ["string", "null"],
-                "format": "date",
+                "type": "string",
+                "description": "ISO date such as 2026-08-10, or an empty string if absent",
             },
             "requested_time": {
-                "type": ["string", "null"],
-                "description": "24-hour local time such as 10:00, or null if absent",
+                "type": "string",
+                "description": "24-hour local time such as 10:00, or an empty string if absent",
             },
             "language": {
                 "type": "string",
@@ -53,7 +53,6 @@ def _intent_schema() -> dict[str, object]:
             "requested_time",
             "language",
         ],
-        "additionalProperties": False,
     }
 
 
@@ -68,8 +67,9 @@ Roman Urdu, or a mixture.
 Allowed service categories: plumber, electrician, tutor, carpenter, painter.
 Allowed neighborhood zones: Gulshan, Johar, Clifton, DHA, Nazimabad.
 
-Return only the requested JSON structure. Use null for missing category, zone,
-date, or time. Do not invent values outside the allowed lists.
+Return only the requested JSON structure. Use "unknown" for missing category
+or zone, and an empty string for missing date or time. Do not invent values
+outside the allowed lists.
 
 User request:
 {message}
@@ -83,17 +83,13 @@ async def extract_intent(message: str) -> ServiceIntent:
     if not api_key:
         raise GeminiConfigurationError("GEMINI_API_KEY is not configured")
 
-    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    model = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     payload = {
         "contents": [{"parts": [{"text": _prompt(message)}]}],
         "generationConfig": {
-            "responseFormat": {
-                "text": {
-                    "mimeType": "application/json",
-                    "schema": _intent_schema(),
-                }
-            }
+            "responseMimeType": "application/json",
+            "responseSchema": _intent_schema(),
         },
     }
 

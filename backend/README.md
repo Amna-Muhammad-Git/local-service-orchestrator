@@ -41,6 +41,10 @@ Every booking query derives `user_id` from the authenticated JWT and applies it
 as an ownership condition. Clients cannot submit a different `user_id` to gain
 access to another user's bookings.
 
+For Expo web development, set `CORS_ORIGINS` in `.env` to the Expo web origin.
+For a physical phone, run Uvicorn with `--host 0.0.0.0` and use the computer's
+LAN IP in the mobile app's `EXPO_PUBLIC_API_URL`.
+
 ## Phase 3 orchestration
 
 `POST /service-requests` accepts a natural-language request in English, Urdu,

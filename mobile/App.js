@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   SafeAreaView,
@@ -10,6 +10,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+
+import {
+  bookServiceRequest,
+  createServiceRequest,
+  getBookings,
+  loginUser,
+  registerUser,
+} from "./services/api";
+import { clearToken, getToken, saveToken } from "./services/authStorage";
 
 const COLORS = {
   cottonRose: "#E5C1BD",
@@ -23,36 +32,6 @@ const COLORS = {
   border: "#E5E7DC",
   success: "#527A62",
 };
-
-const MOCK_PROVIDERS = [
-  {
-    id: 2,
-    name: "Fast Fix Electricians",
-    category: "Electrician",
-    zone: "Johar",
-    rating: 4.2,
-    description: "Quick, careful electrical help for your home.",
-    initials: "FE",
-  },
-  {
-    id: 6,
-    name: "Quick Electric Johar",
-    category: "Electrician",
-    zone: "Johar",
-    rating: 3.7,
-    description: "Friendly local electrician for everyday fixes.",
-    initials: "QJ",
-  },
-  {
-    id: 1,
-    name: "Ali Plumbing Services",
-    category: "Plumber",
-    zone: "Gulshan",
-    rating: 4.5,
-    description: "Reliable plumbing support when you need it.",
-    initials: "AP",
-  },
-];
 
 function PrimaryButton({ children, onPress, disabled = false }) {
   return (
@@ -76,6 +55,15 @@ function SecondaryButton({ children, onPress }) {
     >
       <Text style={styles.secondaryButtonText}>{children}</Text>
     </TouchableOpacity>
+  );
+}
+
+function ErrorMessage({ message }) {
+  if (!message) return null;
+  return (
+    <View style={styles.errorBanner}>
+      <Text style={styles.errorText}>{message}</Text>
+    </View>
   );
 }
 
@@ -153,7 +141,7 @@ function WelcomeScreen({ onStart, onLogin, onHelp }) {
   );
 }
 
-function AuthScreen({ mode, onModeChange, onContinue, onBack }) {
+function AuthScreen({ mode, onModeChange, onContinue, onBack, loading, error }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -194,9 +182,10 @@ function AuthScreen({ mode, onModeChange, onContinue, onBack }) {
             style={styles.input}
             value={password}
           />
-          <Text style={styles.demoNote}>Phase 4 demo mode: backend connection will be added in Phase 5.</Text>
-          <PrimaryButton disabled={!canContinue} onPress={onContinue}>
-            Continue
+          <Text style={styles.demoNote}>Your account is securely connected to Amigo.</Text>
+          <ErrorMessage message={error} />
+          <PrimaryButton disabled={!canContinue || loading} onPress={() => onContinue({ name, email, password })}>
+            {loading ? "Connecting..." : "Continue"}
           </PrimaryButton>
           <TouchableOpacity onPress={() => onModeChange(mode === "login" ? "register" : "login")} style={styles.switchLink}>
             <Text style={styles.switchLinkText}>
@@ -209,7 +198,7 @@ function AuthScreen({ mode, onModeChange, onContinue, onBack }) {
   );
 }
 
-function HomeScreen({ onSearch, onBookings, onHelp }) {
+function HomeScreen({ onSearch, onBookings, onHelp, loading, error }) {
   const [message, setMessage] = useState("");
   const suggestions = ["An electrician in Johar", "A plumber in Gulshan", "A tutor near DHA"];
 
@@ -221,8 +210,9 @@ function HomeScreen({ onSearch, onBookings, onHelp }) {
           <View style={styles.heroCard}>
             <Text style={styles.heroEyebrow}>Find local help</Text>
             <Text style={styles.heroTitle}>Just tell us what you need.</Text>
-            <Text style={styles.heroText}>English, Urdu, or Roman Urdu — write naturally.</Text>
+          <Text style={styles.heroText}>English, Urdu, or Roman Urdu — write naturally.</Text>
           </View>
+          <ErrorMessage message={error} />
           <TextInput
             multiline
             onChangeText={setMessage}
@@ -231,8 +221,8 @@ function HomeScreen({ onSearch, onBookings, onHelp }) {
             style={[styles.requestInput, styles.input]}
             value={message}
           />
-          <PrimaryButton disabled={!message.trim()} onPress={() => onSearch(message.trim())}>
-            Find help
+          <PrimaryButton disabled={!message.trim() || loading} onPress={() => onSearch(message.trim())}>
+            {loading ? "Finding help..." : "Find help"}
           </PrimaryButton>
           <Text style={styles.sectionLabel}>Try asking for...</Text>
           {suggestions.map((suggestion) => (
@@ -270,7 +260,7 @@ function ProviderCard({ provider, onSelect }) {
   );
 }
 
-function ResultsScreen({ message, providers, onSelect, onBack, onHelp }) {
+function ResultsScreen({ message, providers, onSelect, onBack, onBookings, onHelp, error }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.screenFlex}>
@@ -282,6 +272,7 @@ function ResultsScreen({ message, providers, onSelect, onBack, onHelp }) {
           </View>
           <Text style={styles.resultsTitle}>{providers.length} providers found</Text>
           <Text style={styles.resultsSubtitle}>Sorted by rating to help you choose with confidence.</Text>
+          <ErrorMessage message={error} />
           {providers.length ? providers.map((provider) => (
             <ProviderCard key={provider.id} provider={provider} onSelect={() => onSelect(provider)} />
           )) : (
@@ -291,13 +282,13 @@ function ResultsScreen({ message, providers, onSelect, onBack, onHelp }) {
             </View>
           )}
         </ScrollView>
-        <BottomNav active="home" onHome={onBack} onBookings={() => {}} onHelp={onHelp} />
+        <BottomNav active="home" onHome={onBack} onBookings={onBookings} onHelp={onHelp} />
       </View>
     </SafeAreaView>
   );
 }
 
-function BookingScreen({ provider, onConfirm, onBack }) {
+function BookingScreen({ provider, onConfirm, onBack, loading, error }) {
   const [date, setDate] = useState("10 Aug 2026");
   const [time, setTime] = useState("2:30 PM");
 
@@ -322,18 +313,23 @@ function BookingScreen({ provider, onConfirm, onBack }) {
           <Text style={styles.confirmNoteIcon}>✓</Text>
           <Text style={styles.confirmNoteText}>Your request will be saved as pending until confirmed.</Text>
         </View>
-        <PrimaryButton onPress={() => onConfirm({ date, time })}>Confirm booking</PrimaryButton>
+        <ErrorMessage message={error} />
+        <PrimaryButton disabled={loading} onPress={() => onConfirm({ date, time })}>
+          {loading ? "Saving booking..." : "Confirm booking"}
+        </PrimaryButton>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function BookingsScreen({ bookings, onHome, onHelp }) {
+function BookingsScreen({ bookings, onHome, onHelp, loading, error, onRefresh }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.screenFlex}>
         <ScrollView contentContainerStyle={styles.screenContent}>
           <Header title="My bookings" subtitle="Everything in one place" onHelp={onHelp} />
+          <ErrorMessage message={error} />
+          {loading ? <Text style={styles.loadingText}>Loading your bookings...</Text> : null}
           {bookings.length ? bookings.map((booking) => (
             <View key={booking.id} style={styles.bookingCard}>
               <View style={styles.bookingTopRow}>
@@ -350,6 +346,7 @@ function BookingsScreen({ bookings, onHome, onHelp }) {
               <PrimaryButton onPress={onHome}>Find a service</PrimaryButton>
             </View>
           )}
+          {!loading && bookings.length ? <SecondaryButton onPress={onRefresh}>Refresh bookings</SecondaryButton> : null}
         </ScrollView>
         <BottomNav active="bookings" onHome={onHome} onBookings={() => {}} onHelp={onHelp} />
       </View>
@@ -395,36 +392,129 @@ export default function App() {
   const [screen, setScreen] = useState("welcome");
   const [guideReturnScreen, setGuideReturnScreen] = useState("welcome");
   const [authMode, setAuthMode] = useState("login");
+  const [token, setToken] = useState(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
   const [requestMessage, setRequestMessage] = useState("");
+  const [requestId, setRequestId] = useState(null);
   const [providers, setProviders] = useState([]);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [requestError, setRequestError] = useState("");
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState("");
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [bookingsError, setBookingsError] = useState("");
 
-  const searchProviders = (message) => {
-    const lower = message.toLowerCase();
-    const category = lower.includes("plumb") ? "Plumber" : "Electrician";
-    const results = MOCK_PROVIDERS.filter((provider) => provider.category === category);
-    setRequestMessage(message);
-    setProviders(results);
-    setScreen("results");
+  useEffect(() => {
+    getToken().then((storedToken) => {
+      if (storedToken) {
+        setToken(storedToken);
+        setScreen("home");
+      }
+    }).catch(() => {});
+  }, []);
+
+  const handleAuth = async ({ name, email, password }) => {
+    setAuthLoading(true);
+    setAuthError("");
+    try {
+      if (authMode === "register") {
+        await registerUser({ name, email, password });
+      }
+      const loginResponse = await loginUser({ email, password });
+      await saveToken(loginResponse.access_token);
+      setToken(loginResponse.access_token);
+      setScreen("home");
+    } catch (error) {
+      setAuthError(error.message);
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const confirmBooking = ({ date, time }) => {
-    setBookings((current) => [
-      {
-        id: Date.now(),
-        provider: selectedProvider.name,
-        category: selectedProvider.category,
-        zone: selectedProvider.zone,
-        date,
-        time,
-        status: "Pending",
-      },
-      ...current,
-    ]);
-    setSelectedProvider(null);
+  const searchProviders = async (message) => {
+    setRequestLoading(true);
+    setRequestError("");
+    try {
+      const response = await createServiceRequest(message, token);
+      const results = response.providers.map((provider) => ({
+        id: provider.provider_id,
+        name: provider.name,
+        category: provider.category.charAt(0).toUpperCase() + provider.category.slice(1),
+        zone: provider.neighborhood_zone,
+        rating: provider.rating,
+        description: `Local ${provider.category} service in ${provider.neighborhood_zone}.`,
+        initials: provider.name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase(),
+      }));
+      setRequestId(response.request_id);
+      setProviders(results);
+      setRequestMessage(message);
+      setScreen("results");
+      if (response.status === "needs_clarification") {
+        setRequestError("Please include the service type and neighborhood so we can find the right help.");
+      }
+    } catch (error) {
+      setRequestError(error.message);
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  const loadBookings = async () => {
+    if (!token) return;
+    setBookingsLoading(true);
+    setBookingsError("");
+    try {
+      const response = await getBookings(token);
+      setBookings(response.map((booking) => {
+        const when = new Date(booking.booking_time);
+        return {
+          id: booking.booking_id,
+          provider: booking.provider_name,
+          category: booking.category,
+          zone: booking.neighborhood_zone,
+          date: when.toLocaleDateString(),
+          time: when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+          status: booking.status,
+        };
+      }));
+    } catch (error) {
+      setBookingsError(error.message);
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
+  const openBookings = () => {
     setScreen("bookings");
-    Alert.alert("Booking saved", "Your request is now pending confirmation.");
+    loadBookings();
+  };
+
+  const confirmBooking = async ({ date, time }) => {
+    if (!requestId || !selectedProvider) return;
+    setBookingLoading(true);
+    setBookingError("");
+    try {
+      const bookingTime = new Date(`${date} ${time}`);
+      if (Number.isNaN(bookingTime.getTime())) throw new Error("Please enter a valid date and time.");
+      await bookServiceRequest(requestId, selectedProvider.id, bookingTime.toISOString(), token);
+      setSelectedProvider(null);
+      setScreen("bookings");
+      await loadBookings();
+      Alert.alert("Booking saved", "Your request is now pending confirmation.");
+    } catch (error) {
+      setBookingError(error.message);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    await clearToken();
+    setToken(null);
+    setScreen("welcome");
   };
 
   const openGuide = () => {
@@ -437,22 +527,22 @@ export default function App() {
       return <WelcomeScreen onStart={() => { setAuthMode("register"); setScreen("auth"); }} onLogin={() => { setAuthMode("login"); setScreen("auth"); }} onHelp={openGuide} />;
     }
     if (screen === "auth") {
-      return <AuthScreen mode={authMode} onModeChange={setAuthMode} onContinue={() => setScreen("home")} onBack={() => setScreen("welcome")} />;
+      return <AuthScreen mode={authMode} onModeChange={(mode) => { setAuthMode(mode); setAuthError(""); }} onContinue={handleAuth} onBack={() => setScreen("welcome")} loading={authLoading} error={authError} />;
     }
     if (screen === "home") {
-      return <HomeScreen onSearch={searchProviders} onBookings={() => setScreen("bookings")} onHelp={openGuide} />;
+      return <HomeScreen onSearch={searchProviders} onBookings={openBookings} onHelp={openGuide} loading={requestLoading} error={requestError} />;
     }
     if (screen === "results") {
-      return <ResultsScreen message={requestMessage} providers={providers} onSelect={(provider) => { setSelectedProvider(provider); setScreen("booking"); }} onBack={() => setScreen("home")} onHelp={openGuide} />;
+      return <ResultsScreen message={requestMessage} providers={providers} error={requestError} onSelect={(provider) => { setSelectedProvider(provider); setBookingError(""); setScreen("booking"); }} onBack={() => setScreen("home")} onBookings={openBookings} onHelp={openGuide} />;
     }
     if (screen === "booking") {
-      return <BookingScreen provider={selectedProvider} onConfirm={confirmBooking} onBack={() => setScreen("results")} />;
+      return <BookingScreen provider={selectedProvider} onConfirm={confirmBooking} onBack={() => setScreen("results")} loading={bookingLoading} error={bookingError} />;
     }
     if (screen === "bookings") {
-      return <BookingsScreen bookings={bookings} onHome={() => setScreen("home")} onHelp={openGuide} />;
+      return <BookingsScreen bookings={bookings} onHome={() => setScreen("home")} onHelp={openGuide} loading={bookingsLoading} error={bookingsError} onRefresh={loadBookings} />;
     }
     return <GuideScreen onBack={() => setScreen(guideReturnScreen)} />;
-  }, [authMode, bookings, guideReturnScreen, providers, requestMessage, screen, selectedProvider]);
+  }, [authMode, authError, authLoading, bookingError, bookingLoading, bookings, bookingsError, bookingsLoading, guideReturnScreen, providers, requestError, requestLoading, requestMessage, screen, selectedProvider, token]);
 
   return (
     <>

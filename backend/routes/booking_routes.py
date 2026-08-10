@@ -20,6 +20,9 @@ def _booking(row: sqlite3.Row) -> BookingResponse:
         booking_id=row["booking_id"],
         user_id=row["user_id"],
         provider_id=row["provider_id"],
+        provider_name=row["provider_name"],
+        category=row["category"],
+        neighborhood_zone=row["neighborhood_zone"],
         booking_time=datetime.fromisoformat(row["booking_time"]),
         status=row["status"],
     )
@@ -31,10 +34,12 @@ async def list_bookings(user_id: int = Depends(get_current_user_id)) -> list[Boo
     try:
         rows = connection.execute(
             """
-            SELECT booking_id, user_id, provider_id, booking_time, status
-            FROM bookings
+            SELECT b.booking_id, b.user_id, b.provider_id, p.name AS provider_name,
+                   p.category, p.neighborhood_zone, b.booking_time, b.status
+            FROM bookings b
+            JOIN providers p ON p.provider_id = b.provider_id
             WHERE user_id = ?
-            ORDER BY booking_time
+            ORDER BY b.booking_time
             """,
             (user_id,),
         ).fetchall()
@@ -66,7 +71,13 @@ async def create_booking(
         )
         connection.commit()
         row = connection.execute(
-            "SELECT booking_id, user_id, provider_id, booking_time, status FROM bookings WHERE booking_id = ?",
+            """
+            SELECT b.booking_id, b.user_id, b.provider_id, p.name AS provider_name,
+                   p.category, p.neighborhood_zone, b.booking_time, b.status
+            FROM bookings b
+            JOIN providers p ON p.provider_id = b.provider_id
+            WHERE b.booking_id = ?
+            """,
             (cursor.lastrowid,),
         ).fetchone()
         return _booking(row)
@@ -98,7 +109,13 @@ async def update_booking(
             raise HTTPException(status_code=404, detail="Booking not found")
         connection.commit()
         row = connection.execute(
-            "SELECT booking_id, user_id, provider_id, booking_time, status FROM bookings WHERE booking_id = ? AND user_id = ?",
+            """
+            SELECT b.booking_id, b.user_id, b.provider_id, p.name AS provider_name,
+                   p.category, p.neighborhood_zone, b.booking_time, b.status
+            FROM bookings b
+            JOIN providers p ON p.provider_id = b.provider_id
+            WHERE b.booking_id = ? AND b.user_id = ?
+            """,
             (booking_id, user_id),
         ).fetchone()
         return _booking(row)
@@ -122,7 +139,13 @@ async def cancel_booking(
             raise HTTPException(status_code=404, detail="Booking not found")
         connection.commit()
         row = connection.execute(
-            "SELECT booking_id, user_id, provider_id, booking_time, status FROM bookings WHERE booking_id = ? AND user_id = ?",
+            """
+            SELECT b.booking_id, b.user_id, b.provider_id, p.name AS provider_name,
+                   p.category, p.neighborhood_zone, b.booking_time, b.status
+            FROM bookings b
+            JOIN providers p ON p.provider_id = b.provider_id
+            WHERE b.booking_id = ? AND b.user_id = ?
+            """,
             (booking_id, user_id),
         ).fetchone()
         return _booking(row)

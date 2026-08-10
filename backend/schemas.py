@@ -70,6 +70,9 @@ class BookingResponse(BaseModel):
     booking_id: int
     user_id: int
     provider_id: int
+    provider_name: str
+    category: str
+    neighborhood_zone: str
     booking_time: datetime
     status: str
 

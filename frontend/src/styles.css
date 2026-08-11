@@ -1,0 +1,120 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Amigo design system — warm, calm, high contrast, large touch targets.
+ * Palette: Cotton Rose, Bone, Dry Sage, Muted Teal, Blue Slate.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-rose: var(--rose);
+  --color-bone: var(--bone);
+  --color-sage: var(--sage);
+  --color-teal: var(--teal);
+  --color-slate: var(--slate);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --shadow-soft: 0 10px 30px -18px oklch(0.545 0.031 229.7 / 0.55);
+}
+
+:root {
+  --radius: 1.25rem;
+
+  --rose: oklch(0.841 0.042 25.5);
+  --bone: oklch(0.853 0.03 102.8);
+  --sage: oklch(0.786 0.047 118.3);
+  --teal: oklch(0.666 0.051 156);
+  --slate: oklch(0.545 0.031 229.7);
+
+  --background: oklch(0.978 0.006 59.7);
+  --foreground: oklch(0.32 0.026 220);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.32 0.026 220);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.32 0.026 220);
+  --primary: oklch(0.545 0.051 160);
+  --primary-foreground: oklch(0.99 0.005 100);
+  --secondary: oklch(0.93 0.022 102.8);
+  --secondary-foreground: oklch(0.36 0.028 220);
+  --muted: oklch(0.947 0.011 63.4);
+  --muted-foreground: oklch(0.48 0.024 225);
+  --accent: oklch(0.91 0.03 25.5);
+  --accent-foreground: oklch(0.34 0.03 25);
+  --destructive: oklch(0.52 0.17 25);
+  --destructive-foreground: oklch(0.99 0.005 100);
+  --border: oklch(0.9 0.016 80);
+  --input: oklch(0.88 0.018 80);
+  --ring: oklch(0.666 0.051 156);
+  --sidebar: oklch(0.978 0.006 59.7);
+  --sidebar-foreground: oklch(0.32 0.026 220);
+  --sidebar-primary: oklch(0.545 0.051 160);
+  --sidebar-primary-foreground: oklch(0.99 0.005 100);
+  --sidebar-accent: oklch(0.93 0.022 102.8);
+  --sidebar-accent-foreground: oklch(0.32 0.026 220);
+  --sidebar-border: oklch(0.9 0.016 80);
+  --sidebar-ring: oklch(0.666 0.051 156);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--teal);
+    outline-offset: 2px;
+  }
+}
+
+@utility amigo-surface {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-soft);
+}

@@ -61,9 +61,7 @@ function HomePage() {
         setError("Your session has ended. Please log in again.");
         setTimeout(() => navigate({ to: "/auth", search: { mode: "login" } }), 1200);
       } else {
-        setError(
-          err instanceof ApiError ? err.message : "Something went wrong. Please try again.",
-        );
+        setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -103,7 +101,9 @@ function HomePage() {
                   <button
                     type="button"
                     onClick={() =>
-                      setMessage((m) => (m.trim() ? `${m.trim()} ${service}` : `I need a ${service.toLowerCase()} `))
+                      setMessage((m) =>
+                        m.trim() ? `${m.trim()} ${service}` : `I need a ${service.toLowerCase()} `,
+                      )
                     }
                     className="min-h-[52px] rounded-2xl border-2 border-border bg-card px-5 text-lg font-semibold transition hover:bg-secondary"
                   >

@@ -119,7 +119,7 @@ function BookingsPage() {
           {bookings.map((b, i) => {
             const when = formatWhen(b.booking_time);
             return (
-            <li key={String(b.id ?? b.booking_id ?? i)} className="amigo-surface p-5">
+              <li key={String(b.id ?? b.booking_id ?? i)} className="amigo-surface p-5">
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                   <div className="min-w-0">
                     <h2 className="truncate text-xl font-extrabold">{providerName(b)}</h2>

@@ -3,12 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Star, MapPin, MessageCircleQuestion, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { BigButton } from "@/components/ui-kit";
-import {
-  providerArea,
-  providerCategory,
-  providerDescription,
-  type Provider,
-} from "@/lib/api";
+import { providerArea, providerCategory, providerDescription, type Provider } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { requestStore, type StoredRequest } from "@/lib/request-store";
 
@@ -104,7 +99,10 @@ function ResultsPage() {
 
           {clarification !== undefined ? (
             <div className="flex items-start gap-3 rounded-2xl border-2 border-accent bg-accent/40 p-5">
-              <MessageCircleQuestion className="mt-1 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+              <MessageCircleQuestion
+                className="mt-1 h-6 w-6 shrink-0 text-primary"
+                aria-hidden="true"
+              />
               <div>
                 <p className="text-lg font-bold">Amigo needs a little more detail</p>
                 <p className="mt-1 text-base">

@@ -52,9 +52,11 @@ function friendlyMessage(status: number, detail?: unknown): string {
     return detail[0].msg as string;
   }
   if (status === 401) return "Your session has ended. Please log in again.";
-  if (status === 400 || status === 422) return "Some details look incorrect. Please check and try again.";
+  if (status === 400 || status === 422)
+    return "Some details look incorrect. Please check and try again.";
   if (status === 404) return "We could not find what you were looking for.";
-  if (status >= 500) return "Amigo's helper service is having trouble right now. Please try again in a moment.";
+  if (status >= 500)
+    return "Amigo's helper service is having trouble right now. Please try again in a moment.";
   return "Something went wrong. Please try again.";
 }
 

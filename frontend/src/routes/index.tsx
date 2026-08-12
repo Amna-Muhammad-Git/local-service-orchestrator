@@ -36,8 +36,8 @@ function Welcome() {
           </div>
           <h1 className="mt-6 text-5xl font-extrabold tracking-tight">Amigo</h1>
           <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
-            Your friendly local helper finder. Just say what you need — a plumber, an electrician,
-            a tutor — and Amigo will find trusted people near you.
+            Your friendly local helper finder. Just say what you need — a plumber, an electrician, a
+            tutor — and Amigo will find trusted people near you.
           </p>
           <p className="mt-3 text-lg font-semibold text-primary">
             You can write in English, اردو, or Roman Urdu.

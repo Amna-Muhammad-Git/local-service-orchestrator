@@ -27,9 +27,7 @@ export function AppShell({
         <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4">
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-extrabold tracking-tight">{title}</h1>
-            {subtitle ? (
-              <p className="mt-1 text-base text-muted-foreground">{subtitle}</p>
-            ) : null}
+            {subtitle ? <p className="mt-1 text-base text-muted-foreground">{subtitle}</p> : null}
           </div>
           {isLoggedIn ? (
             <button

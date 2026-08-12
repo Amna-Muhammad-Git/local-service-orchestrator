@@ -168,11 +168,7 @@ function AuthPage() {
           {info ? <Notice message={info} tone="info" /> : null}
 
           <BigButton type="submit" loading={loading}>
-            {loading
-              ? "Connecting to Amigo…"
-              : isRegister
-                ? "Create account"
-                : "Log in"}
+            {loading ? "Connecting to Amigo…" : isRegister ? "Create account" : "Log in"}
           </BigButton>
         </form>
 

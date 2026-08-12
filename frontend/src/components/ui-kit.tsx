@@ -45,7 +45,10 @@ export function Notice({ message, tone = "error" }: { message: string; tone?: "e
       ? "border-destructive/40 bg-destructive/10 text-destructive"
       : "border-border bg-secondary text-secondary-foreground";
   return (
-    <div role="status" className={`flex items-start gap-3 rounded-2xl border p-4 text-base ${toneStyles}`}>
+    <div
+      role="status"
+      className={`flex items-start gap-3 rounded-2xl border p-4 text-base ${toneStyles}`}
+    >
       <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
       <p>{message}</p>
     </div>

@@ -3,13 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, Star } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { BigButton, Field, Notice, inputClass } from "@/components/ui-kit";
-import {
-  ApiError,
-  bookProvider,
-  providerArea,
-  providerCategory,
-  type Provider,
-} from "@/lib/api";
+import { ApiError, bookProvider, providerArea, providerCategory, type Provider } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { requestStore, type StoredRequest } from "@/lib/request-store";
 
